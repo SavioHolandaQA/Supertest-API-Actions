@@ -2,7 +2,7 @@ name: Run Tests
 
 on:
   push:
-   
+  
   pull_request:
     branches: [main]
 
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -25,24 +25,18 @@ jobs:
           npm ci
           npm install -g jest@latest
 
-      - name: Verificar estrutura de testes
+      - name: Verificar ambiente
         run: |
-          echo "Arquivos de teste encontrados:"
-          ls -R tests/
-          echo "Versão do Jest: $(jest --version)"
+          echo "Node: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "Jest: $(jest --version)"
 
-      - name: Executar teste específico
-        run: npx jest "tests/JS Completo.test.js" --ci --verbose
+      - name: Executar testes
+        run: npx jest --ci --maxWorkers=4 --coverage
 
-      - name: Executar todos os testes (opcional)
-        if: always()
-        run: npx jest --ci --coverage
-
-      - name: Upload de resultados
+      - name: Upload de cobertura (opcional)
+        if: success()
         uses: actions/upload-artifact@v3
-        if: always()
         with:
-          name: test-results
-          path: |
-            coverage/
-            jest-stare/
+          name: coverage-report
+          path: coverage/
